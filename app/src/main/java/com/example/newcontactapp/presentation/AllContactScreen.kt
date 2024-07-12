@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -45,6 +46,7 @@ import kotlinx.coroutines.delay
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllContactScreen(
@@ -73,10 +75,7 @@ fun AllContactScreen(
                                     color = Color.White.copy(alpha = 0.7f)
                                 )
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.White.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
-                                .padding(horizontal = 8.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             textStyle = TextStyle(color = Color.White),
                             singleLine = true,
                             colors = TextFieldDefaults.colors(
@@ -91,10 +90,7 @@ fun AllContactScreen(
                             )
                         )
                     } else {
-                        Text("Contacts",
-                            color = surfaceColor,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp)
+                        Text("Contacts", color = surfaceColor, fontWeight = FontWeight.Bold)
                     }
                 },
                 actions = {
@@ -122,15 +118,15 @@ fun AllContactScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = primaryColor,
                     titleContentColor = surfaceColor
-                ),
-                modifier = Modifier.shadow(4.dp)
+                )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Routes.AddEditScreen.route) },
                 containerColor = secondaryColor,
-                modifier = Modifier.shadow(8.dp)
+                shape = CircleShape,
+                modifier = Modifier.shadow(4.dp, CircleShape)
             ) {
                 Icon(Icons.Rounded.Add, contentDescription = "Add Contact", tint = surfaceColor)
             }
@@ -168,7 +164,6 @@ fun AllContactScreen(
                         ContextCompat.startActivity(context, intent, null)
                     }
                 )
-                Divider(color = Color.LightGray.copy(alpha = 0.5f), thickness = 0.5.dp)
             }
         }
     }
@@ -221,7 +216,7 @@ fun ContactCard(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(primaryColor),
             contentAlignment = Alignment.CenterStart
         ) {
@@ -252,15 +247,14 @@ fun ContactCard(
                         }
                     }
                 )
-                .scale(scale)
-                .shadow(4.dp, RoundedCornerShape(12.dp)),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                .scale(scale),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             colors = CardDefaults.cardColors(containerColor = surfaceColor),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(16.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -275,6 +269,7 @@ fun ContactCard(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = textPrimaryColor
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = contact.number,
                         style = MaterialTheme.typography.bodyMedium,
@@ -283,7 +278,7 @@ fun ContactCard(
                     Text(
                         text = contact.email,
                         style = MaterialTheme.typography.bodySmall,
-                        color = textSecondaryColor.copy(alpha = 0.7f),
+                        color = textSecondaryColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -292,13 +287,28 @@ fun ContactCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    IconButton(onClick = onCallClick) {
+                    IconButton(
+                        onClick = onCallClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(primaryColor.copy(alpha = 0.1f), CircleShape)
+                    ) {
                         Icon(Icons.Rounded.Phone, contentDescription = "Call", tint = iconPrimaryColor)
                     }
-                    IconButton(onClick = onEditClick) {
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(secondaryColor.copy(alpha = 0.1f), CircleShape)
+                    ) {
                         Icon(Icons.Rounded.Edit, contentDescription = "Edit", tint = iconSecondaryColor)
                     }
-                    IconButton(onClick = onDeleteClick) {
+                    IconButton(
+                        onClick = onDeleteClick,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(iconDeleteColor.copy(alpha = 0.1f), CircleShape)
+                    ) {
                         Icon(Icons.Rounded.Delete, contentDescription = "Delete", tint = iconDeleteColor)
                     }
                 }
@@ -310,28 +320,31 @@ fun ContactCard(
 @Composable
 fun ContactImage(image: ByteArray?, name: String) {
     val bitmap = image?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
-    val defaultColor = name.first().uppercaseChar().hashCode() and 0x00FFFFFF or 0xFF000000.toInt()
-
     Box(
-        contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(70.dp)
-            .clip(CircleShape)
-            .background(Color(defaultColor))
-            .shadow(4.dp, CircleShape)
+            .size(64.dp)
+            .background(
+                color = if (bitmap != null) Color.Transparent else primaryVariant,
+                shape = CircleShape
+            )
+            .border(2.dp, primaryColor, CircleShape)
+            .shadow(4.dp, CircleShape),
+        contentAlignment = Alignment.Center
     ) {
         if (bitmap != null) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Contact Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
         } else {
             Text(
                 text = name.first().toString(),
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = Color.White
+                color = surfaceColor,
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
         }
     }

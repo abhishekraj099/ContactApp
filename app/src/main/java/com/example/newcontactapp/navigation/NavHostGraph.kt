@@ -4,10 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.newcontactapp.presentation.AddEditScreen
 import com.example.newcontactapp.presentation.AllContactScreen
 import com.example.newcontactapp.presentation.ContactState
 import com.example.newcontactapp.presentation.ContactViewModel
+import com.example.newcontactapp.presentation.AddEditScreen
 
 @Composable
 fun NavHostGraph(
